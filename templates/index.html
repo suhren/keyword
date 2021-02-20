@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<style>
+
+    * {
+        font-size: 100%;
+        font-family: Arial;
+    }
+    
+    .container {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 70%;
+    }
+
+    textarea {
+        width: 100%;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 12px 20px;
+        box-sizing: border-box;
+        border: 2px solid #ccc;
+        border-radius: 4px;
+        background-color: #f8f8f8;
+        font-size: 16px;
+        resize: none;
+        overflow-y: scroll;
+    }
+
+    button {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 16px;
+        margin-bottom: 16px;
+        background-color: #4CAF50; /* Green */
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+    }
+</style>
+
+<h1 style="text-align:center; font-size:32px">Generate words!</h1>
+
+<div class="container">
+
+    <form method="POST">
+    <textarea style="height: 200px" placeholder="Enter text here..." name="textbox">{{ text }}</textarea>
+    <button style="font-size: 24px" type="submit" name="submit">Submit</button>
+    </form>
+
+    <h3 style="text-align:center; font-size:16px" id="message"> {{message}} </h3>
+
+    <textarea style="height: 400px" id="results" placeholder="Results appear here">
+        {%- if result -%}
+        {{'\n'.join(result)}}
+        {%- endif -%}
+    </textarea>
+    <button style="font-size: 16px" name="toCsv" onclick="toCsv()">To CSV</button>
+
+</div>
+
+<script>
+    
+    var resArea = document.getElementById("results");
+
+    function toCsv() {    
+        text = resArea.textContent;
+        let tokens = text.split('\n');
+        resArea.textContent = tokens.join(', ');
+    }   
+
+</script>
+
+</body>
+</html>
