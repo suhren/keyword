@@ -1,36 +1,41 @@
-import logo from './logo.svg';
 import github_logo from './github-svgrepo-com.svg';
 
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
+
 
 function App() {
     return (
         <div className="App">
+
             <header className="App-header">
-                {/*<img src={logo} className="App-logo" alt="logo" />*/}
-                <p>
-                    Generate <code>keywords</code> from large text documents!
-                </p>
-                <textarea style={{height: '300px'}}
-                          placeholder="Enter text here..."
-                          id="textInput">
-                </textarea>
+                <h1>
+                    Extract <code style={{color: "#718dbd"}}>keywords</code> from text documents!
+                </h1>
+
+                <textarea className="textarea"
+                          rows="10"
+                          margin="normal"
+                          id="textInput"
+                          label="Input text"
+                          placeholder="Input text here"/>
                 
-                <Button variant="primary" onClick={submit}
+                <Button variant="primary"
+                        onClick={submit}
                         id='button_submit'>
                     Submit
                 </Button>
 
-                <textarea style={{height: '400px'}}
+                <textarea className="textarea"
                           id="textOutput"
+                          rows="10"
                           placeholder="Results appear here">
                 </textarea>
 
                 
-                <Button variant="secondary"
+                <Button onClick={to_csv}
                         id='button_csv'>
                     To CSV
                 </Button>
@@ -40,7 +45,7 @@ function App() {
                    rel="noopener noreferrer"
                    href="https://github.com/suhren/keyword/">
                     <img src={github_logo}
-                         style={{margin: "16px", width:'64px', height: '64px'}} />
+                         style={{margin: "32px", width:'64px', height: '64px'}} />
                 </a>
 
             </header>
@@ -83,6 +88,11 @@ function submit() {
         });
 }
 
-
+function to_csv() {
+    var resArea = document.getElementById("textOutput");
+    let text = resArea.value;
+    let tokens = text.split('\n');
+    resArea.value = tokens.join(', ');
+}
 
 export default App;

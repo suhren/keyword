@@ -69,4 +69,4 @@ def generate():
     return (json, HTTP_OK)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True, port=5001, ssl_context='adhoc') #ssl_context=('cert.pem', 'key.pem'))
+    app.run(host='0.0.0.0', debug=True, port=5000, ssl_context=('cert.pem', 'key.pem'))
