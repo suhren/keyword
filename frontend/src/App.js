@@ -56,7 +56,11 @@ function submit() {
         headers: { 'Content-Type': 'application/json'},
         body: JSON.stringify({ text: textInput })
     };
-    fetch('http://localhost:5000/generate', requestOptions)
+
+    console.log(requestOptions);
+
+    //fetch('http://keyword.bitgnd.com:5000/generate', requestOptions)
+    fetch('https://keyword.bitgnd.com:5000/generate', requestOptions)
         .then(async response => {
             const data = await response.json();
             
