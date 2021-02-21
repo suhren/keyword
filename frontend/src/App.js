@@ -1,10 +1,43 @@
 import github_logo from './github-svgrepo-com.svg';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
 import './App.css';
 
-import Button from 'react-bootstrap/Button';
+import { Form, Col, Row, Button } from "react-bootstrap";
 
+import RangeSlider from 'react-bootstrap-range-slider';
+import React from 'react';
+
+function SliderWithInputFormControl(props) {
+    const [ value, setValue ] = React.useState(100);
+    return (
+        <Form id="wordForm">
+            <Form.Group as={Row}>
+                <Col xs="4">
+                <Form.Label>
+                    <div id="wordFormLabel">{props.label}</div>
+                </Form.Label>
+                </Col>
+                <Col xs="6">
+                    <RangeSlider
+                        inputProps={{id: props.id}}
+                        min={0}
+                        max={100}
+                        value={value}
+                        onChange={e => setValue(e.target.value)}
+                    />
+                </Col>
+                <Col xs="2">
+                    <Form.Control
+                        id="wordForm"
+                        value={value}
+                        onChange={e => setValue(e.target.value)}/>
+                </Col>
+            </Form.Group>
+        </Form>
+    );
+}
 
 function App() {
     return (
@@ -22,6 +55,12 @@ function App() {
                           label="Input text"
                           placeholder="Input text here"/>
                 
+
+                <SliderWithInputFormControl id='slider1' label='1-words'/>
+                <SliderWithInputFormControl id='slider2' label='2-words'/>
+                <SliderWithInputFormControl id='slider3' label='3-words'/>
+                <SliderWithInputFormControl id='slider4' label='4-words'/>
+
                 <Button variant="primary"
                         onClick={submit}
                         id='button_submit'>
@@ -55,22 +94,24 @@ function App() {
 
 function submit() {
     let textInput = document.getElementById('textInput').value;
+    let slider1 = document.getElementById('slider1').value;
+    let slider2 = document.getElementById('slider2').value;
+    let slider3 = document.getElementById('slider3').value;
+    let slider4 = document.getElementById('slider4').value;
 
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json'},
-        body: JSON.stringify({ text: textInput })
+        body: JSON.stringify({
+            text: textInput,
+            ngram: [slider1, slider2, slider3, slider4]
+        })
     };
 
-    console.log(requestOptions);
-
-    //fetch('http://keyword.bitgnd.com:5000/generate', requestOptions)
     fetch('https://keyword.bitgnd.com:5000/generate', requestOptions)
         .then(async response => {
             const data = await response.json();
             
-            console.log(data);
-
             // check for error response
             if (!response.ok) {
                 // get error message from body or default to response status
