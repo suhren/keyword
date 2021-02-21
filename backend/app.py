@@ -1,10 +1,19 @@
 from flask import Flask, render_template, jsonify, request
 
+# https://flask-cors.readthedocs.io/en/latest/
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors/CORSMissingAllowOrigin
+from flask_cors import CORS
+
 import model
 
+
+HTTP_OK = 200
+HTTP_BAD_REQUEST = 400
+HTTP_INTERNAL_SERVER_ERROR = 500
+
 app = Flask(__name__)
-app.jinja_env.trim_blocks = True
-app.jinja_env.lstrip_blocks = True
+CORS(app)
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -38,21 +47,26 @@ def index():
 
 @app.route('/generate', methods=['POST'])
 def generate():
-    json = request.get_json()
+
+    # https://stackoverflow.com/questions/10434599/get-the-data-received-in-a-flask-request
+    json = request.get_json(force=True)
+
+    if not json:
+        return ('Could not parse JSON', HTTP_BAD_REQUEST)
 
     # TODO: Validate JSON with schema?
     if 'text' not in json:
-        return ('Entry "text" is missing from JSON', 400)
+        return ('Entry "text" is missing from JSON', HTTP_BAD_REQUEST)
 
     text = json['text']
 
     try:
         result, message = model.process(text)
     except model.ProcessError as error:
-        return (str(error), 500)
+        return (str(error), HTTP_INTERNAL_SERVER_ERROR)
 
     json['result'] = result
-    return json
+    return (json, HTTP_OK)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
