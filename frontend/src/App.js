@@ -4,33 +4,35 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
 import './App.css';
 
-import { Form, Col, Row, Button } from "react-bootstrap";
+import { Accordion, Card, Form, Col, Row, Button } from "react-bootstrap";
 
 import RangeSlider from 'react-bootstrap-range-slider';
 import React from 'react';
 
+
 function SliderWithInputFormControl(props) {
-    const [ value, setValue ] = React.useState(100);
+    const [ value, setValue ] = React.useState(props.val);
     return (
-        <Form id="wordForm">
-            <Form.Group as={Row}>
+        <Form>
+            <Form.Group as={Row} style={{margin: '0px'}}>
                 <Col xs="4">
                 <Form.Label>
-                    <div id="wordFormLabel">{props.label}</div>
+                    <div>{props.label}</div>
                 </Form.Label>
                 </Col>
                 <Col xs="6">
                     <RangeSlider
+                        variant='secondary'
                         inputProps={{id: props.id}}
-                        min={0}
-                        max={100}
+                        min={props.min}
+                        max={props.max}
                         value={value}
                         onChange={e => setValue(e.target.value)}
                     />
                 </Col>
                 <Col xs="2">
                     <Form.Control
-                        id="wordForm"
+                        style={{border: 'none', color: 'white', backgroundColor: '#282c34'}}
                         value={value}
                         onChange={e => setValue(e.target.value)}/>
                 </Col>
@@ -38,6 +40,7 @@ function SliderWithInputFormControl(props) {
         </Form>
     );
 }
+
 
 function App() {
     return (
@@ -55,17 +58,38 @@ function App() {
                           label="Input text"
                           placeholder="Input text here"/>
                 
+                <Accordion defaultActiveKey='none'>
 
-                <SliderWithInputFormControl id='slider1' label='1-words'/>
-                <SliderWithInputFormControl id='slider2' label='2-words'/>
-                <SliderWithInputFormControl id='slider3' label='3-words'/>
-                <SliderWithInputFormControl id='slider4' label='4-words'/>
+                    <Card style={{backgroundColor:'#444', border: 'none'}}>
+                        <Card.Header>
+                            <Accordion.Toggle as={Button} variant="link" eventKey="0" style={{color:'#FFFFFF'}}>
+                                Options
+                            </Accordion.Toggle>
+                        </Card.Header>
 
+                        <Accordion.Collapse eventKey="0">
+                            <Card.Body>
+                                <SliderWithInputFormControl min={0} max={100} val={35} id='slider1' label='1-grams'/>
+                                <SliderWithInputFormControl min={0} max={100} val={15} id='slider2' label='2-grams'/>
+                                <SliderWithInputFormControl min={0} max={100} val={0} id='slider3' label='3-grams'/>
+                                <SliderWithInputFormControl min={0} max={100} val={0} id='slider4' label='4-grams'/>
+                                <SliderWithInputFormControl min={1} max={50} val={4} id='sliderMin' label='Min. chars'/>
+                                <SliderWithInputFormControl min={1} max={50} val={30} id='sliderMax' label='Max. chars'/>
+                            </Card.Body>
+                        </Accordion.Collapse>
+                    </Card>
+                </Accordion>
+            
                 <Button variant="primary"
                         onClick={submit}
+                        style={{margin: '16px'}}
                         id='button_submit'>
                     Submit
                 </Button>
+
+                <h3 id='statusText' style={{fontSize: '0.65em', color: '#AAAAAA'}}>
+                    Status text
+                </h3>
 
                 <textarea className="textarea"
                           id="textOutput"
@@ -94,24 +118,36 @@ function App() {
 
 function submit() {
     let textInput = document.getElementById('textInput').value;
-    let slider1 = document.getElementById('slider1').value;
-    let slider2 = document.getElementById('slider2').value;
-    let slider3 = document.getElementById('slider3').value;
-    let slider4 = document.getElementById('slider4').value;
+    let slider1 = parseInt(document.getElementById('slider1').value);
+    let slider2 = parseInt(document.getElementById('slider2').value);
+    let slider3 = parseInt(document.getElementById('slider3').value);
+    let slider4 = parseInt(document.getElementById('slider4').value);
+    let sliderMin = parseInt(document.getElementById('sliderMin').value);
+    let sliderMax = parseInt(document.getElementById('sliderMax').value);
+    let statusText = document.getElementById('statusText');
+
+    if (textInput == '') {
+        return;
+    }
+
+    let json = JSON.stringify({
+        text: textInput,
+        ngram: [slider1, slider2, slider3, slider4],
+        chars: [sliderMin, sliderMax]  
+    });
 
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            text: textInput,
-            ngram: [slider1, slider2, slider3, slider4]
-        })
+        body: json
     };
 
     fetch('https://keyword.bitgnd.com:5000/generate', requestOptions)
         .then(async response => {
             const data = await response.json();
             
+            statusText.innerHTML = data['message'];
+
             // check for error response
             if (!response.ok) {
                 // get error message from body or default to response status
@@ -119,7 +155,7 @@ function submit() {
                 return Promise.reject(error);
             }
             let outputTextarea = document.getElementById('textOutput');
-            outputTextarea.value = data['result'].join('\n');
+            outputTextarea.value = data['result'].flat().join('\n');
 
             //this.setState({ postId: data.id })
         })
