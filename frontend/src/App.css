@@ -1,16 +1,9 @@
+code {
+    color: "#AAAAAA";
+}
+
 .App {
   text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
 }
 
 .App-header {
@@ -24,29 +17,46 @@
   color: white;
 }
 
-.App-link {
-  color: #fb6161;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-textarea {
-    width: 80%;
+.textarea {
+    width: 60%;
     margin-left: auto;
     margin-right: auto;
+    margin-bottom: 8px;
+    margin-top: 8px;
     padding: 12px 20px;
     box-sizing: border-box;
-    border: 2px solid rgb(95, 95, 95);
-    border-radius: 4px;
-    background-color: #8d9ca0;
+    border: 1px solid #AAAAAA;
+    border-radius: 8px;
+    background-color: #1b212c;
+    color: #AAAAAA;
     font-size: 16px;
     resize: none;
-    overflow-y: scroll;
+    overflow-y: auto;
+}
+
+.btn-primary {
+    background-color: #718dbd;
+    border: none;
+    font-size: 20px;
+}
+
+#wordForm {
+    font-size: 14px;
+    padding: 4px;
+    vertical-align: middle;
+}
+
+#wordFormLabel {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.accordion {
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 8px;
+    margin-top: 8px;
 }
