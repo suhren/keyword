@@ -16,6 +16,12 @@ POS_NOUN_ADJ = ('JJ', 'JJR', 'JJS', 'NN', 'NNS', 'NNP', 'NNPS')
 RE_ALPH = re.compile(r"^[a-zA-Z']+$")
 RE_POSS = re.compile(r"('s|s')$")
 
+def filter_min_char(word, n):
+    return len(word) >= n
+    
+def filter_max_char(word, n):
+    return len(word) <= n
+    
 def filter_unigrams(word):
     tags = nltk.pos_tag([word])
     return tags[0][1] in POS_NOUN and word not in STOP_WORDS
@@ -40,7 +46,10 @@ class ProcessError(Exception):
     pass
 
 
-def process(text, n=50):
+def process(text: str,
+            num_ngram: list = [100, 100, 100, 100],
+            min_char: int = 3,
+            max_char: int = 30):
     
     # Split text into separate lines by newline characters
     lines = text.splitlines(keepends=False)
@@ -89,58 +98,74 @@ def process(text, n=50):
         for word in sentence:
             counter[word] += 1
 
-    
-    bigrams = BigramCollocationFinder.from_documents(sentences) 
-    trigrams = TrigramCollocationFinder.from_documents(sentences) 
-    quadgrams = QuadgramCollocationFinder.from_documents(sentences) 
-
     # score_fn:
     # raw_freq, student_t, chi_sq, likelihood_ratio, pmi
 
-    df1 = pd.DataFrame({'entry': counter.keys(), 'freq': counter.values()})
-    df1 = df1.sort_values(by='freq', ascending=False)
-    df1 = df1.head(200)
-    df1 = df1[df1['entry'].map(lambda x: filter_unigrams(x))]
+    res = [[], [], [], []]
 
-    tuples2 = bigrams.score_ngrams(BigramAssocMeasures.raw_freq)
-    df2 = pd.DataFrame(tuples2, columns=['entry','score'])
-    df2 = df2.sort_values(by='score', ascending=False)
-    df2 = df2.head(200)
-    df2 = df2[df2['entry'].map(lambda x: filter_bigrams(x))]
+    n1 = num_ngram[0]
+    if n1:
+        df1 = pd.DataFrame({'entry': counter.keys(), 'freq': counter.values()})
+        df1 = df1.sort_values(by='freq', ascending=False)
+        df1 = df1.head(500)
+        df1 = df1[df1['entry'].map(lambda x: filter_unigrams(x))]
+        if min_char is not None:
+            df1 = df1[df1['entry'].map(lambda x: filter_min_char(x, min_char))]
+        if max_char is not None:
+            df1 = df1[df1['entry'].map(lambda x: filter_max_char(x, max_char))]
+        if len(df1) > 0:
+            res[0] = df1['entry'].iloc[:n1].tolist()
 
-    tuples3 = trigrams.score_ngrams(TrigramAssocMeasures.raw_freq)
-    df3 = pd.DataFrame(tuples3, columns=['entry','score'])
-    df3 = df3.sort_values(by='score', ascending=False)
-    df3 = df3.head(200)
-    df3 = df3[df3['entry'].map(lambda x: filter_trigrams(x))]
+    n2 = num_ngram[1]
+    if n2:
+        bigrams = BigramCollocationFinder.from_documents(sentences) 
+        tuples2 = bigrams.score_ngrams(BigramAssocMeasures.raw_freq)
+        if tuples2:
+            df2 = pd.DataFrame(tuples2, columns=['entry','score'])
+            df2 = df2.sort_values(by='score', ascending=False)
+            df2 = df2.head(500)
+            df2 = df2[df2['entry'].map(lambda x: filter_bigrams(x))]
+            df2['entry'] = df2['entry'].apply(' '.join)
+            if min_char:
+                df2 = df2[df2['entry'].map(lambda x: filter_min_char(x, min_char))]
+            if max_char:
+                df2 = df2[df2['entry'].map(lambda x: filter_max_char(x, max_char))]
+            if len(df2) > 0:
+                res[1] = df2['entry'].iloc[:n2].tolist()
 
-    tuples4 = quadgrams.score_ngrams(QuadgramAssocMeasures.raw_freq)
-    df4 = pd.DataFrame(tuples4, columns=['entry','score'])
-    df4 = df4.sort_values(by='score', ascending=False)
-    df4 = df4.head(200)
-    df4 = df4[df4['entry'].map(lambda x: filter_quadgrams(x))]
-    
-    res = []
-    
-    ratio = [0.7, 0.3, 0.0, 0.0]
-    
-    n1 = math.floor(ratio[0] * n)
-    n2 = math.floor(ratio[1] * n)
-    n3 = math.floor(ratio[2] * n)
-    n4 = math.floor(ratio[3] * n)
-    remainder = n - (n1 + n2 + n3 + n4)
-    n1 += remainder
-    
+    n3 = num_ngram[2]
+    if n3:
+        trigrams = TrigramCollocationFinder.from_documents(sentences) 
+        tuples3 = trigrams.score_ngrams(TrigramAssocMeasures.raw_freq)
+        if tuples3:
+            df3 = pd.DataFrame(tuples3, columns=['entry','score'])
+            df3 = df3.sort_values(by='score', ascending=False)
+            df3 = df3.head(500)
+            df3 = df3[df3['entry'].map(lambda x: filter_trigrams(x))]
+            df3['entry'] = df3['entry'].apply(' '.join)
+            if min_char:
+                df3 = df3[df3['entry'].map(lambda x: filter_min_char(x, min_char))]
+            if max_char:
+                df3 = df3[df3['entry'].map(lambda x: filter_max_char(x, max_char))]
+            if len(df3) > 0:
+                res[2] = df3['entry'].iloc[:n3].tolist()
 
-    r1 = df1['entry'].iloc[0:n1].tolist()
-    r2 = df2['entry'].iloc[0:n2].apply(' '.join).tolist()
-    r3 = df3['entry'].iloc[0:n3].apply(' '.join).tolist()
-    r4 = df4['entry'].iloc[0:n4].apply(' '.join).tolist()
-
-    res += r1
-    res += r2
-    res += r3
-    res += r4
+    n4 = num_ngram[3]
+    if n4:
+        quadgrams = QuadgramCollocationFinder.from_documents(sentences) 
+        tuples4 = quadgrams.score_ngrams(QuadgramAssocMeasures.raw_freq)
+        if tuples4:
+            df4 = pd.DataFrame(tuples4, columns=['entry','score'])
+            df4 = df4.sort_values(by='score', ascending=False)
+            df4 = df4.head(500)
+            df4 = df4[df4['entry'].map(lambda x: filter_quadgrams(x))]
+            df4['entry'] = df4['entry'].apply(' '.join)
+            if min_char:
+                df4 = df4[df4['entry'].map(lambda x: filter_min_char(x, min_char))]
+            if max_char:
+                df4 = df4[df4['entry'].map(lambda x: filter_max_char(x, max_char))]
+            if len(df4) > 0:
+                res[3] = df4['entry'].iloc[:n4].tolist()
     
-    message = f'Found [{len(r1)}] one-grams, [{len(r2)}] two-grams, [{len(r3)}] three-grams, and [{len(r4)}] four-grams'
+    message = f'Found [{len(res[0])}] 1-grams, [{len(res[1])}] 2-grams, [{len(res[2])}] 3-grams, and [{len(res[3])}] 4-grams'
     return res, message

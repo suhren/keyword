@@ -51,22 +51,56 @@ def generate():
     # https://stackoverflow.com/questions/10434599/get-the-data-received-in-a-flask-request
     json = request.get_json(force=True)
 
+    return_json = {}
+
     if not json:
-        return ('Could not parse JSON', HTTP_BAD_REQUEST)
+        return_json['message'] = 'Could not parse JSON'
+        return (return_json, HTTP_BAD_REQUEST)
 
     # TODO: Validate JSON with schema?
     if 'text' not in json:
-        return ('Entry "text" is missing from JSON', HTTP_BAD_REQUEST)
+        return_json['message'] = 'Entry "text" is missing from JSON'
+        return (return_json, HTTP_BAD_REQUEST)
 
     text = json['text']
 
-    try:
-        result, message = model.process(text)
-    except model.ProcessError as error:
-        return (str(error), HTTP_INTERNAL_SERVER_ERROR)
+    num_ngram = [100, 100, 100, 100]
+    
+    if 'ngram' in json:
+        counts = json['ngram']
+        if counts[0] is not None:
+            num_ngram[0] = int(counts[0])
+        if counts[1] is not None:
+            num_ngram[1] = int(counts[1])
+        if counts[2] is not None:
+            num_ngram[2] = int(counts[2])
+        if counts[3] is not None:
+            num_ngram[3] = int(counts[3])
 
-    json['result'] = result
-    return (json, HTTP_OK)
+    min_char = 3
+    max_char = 30
+    
+    if 'chars' in json:
+        chars = json['chars']
+        if chars[0] is not None:
+            min_char = int(chars[0])
+        if chars[1] is not None:
+            max_char = int(chars[1])
+
+    try:
+        result, message = model.process(text=text,
+                                        num_ngram=num_ngram,
+                                        min_char=min_char,
+                                        max_char=max_char)
+    except model.ProcessError as error:
+        return_json['message'] = str(error) 
+        return (return_json, HTTP_INTERNAL_SERVER_ERROR)
+
+    return_json['result'] = result
+    return_json['message'] = message
+    return (return_json, HTTP_OK)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0',
+            debug=True,
+            ssl_context=('cert.pem', 'key.pem'))
