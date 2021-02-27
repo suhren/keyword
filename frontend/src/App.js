@@ -20,6 +20,7 @@ import ChipContainer from './ChipContainer';
 import Chip from '@material-ui/core/Chip';
 
 import TabPanel from './TabPanel';
+import { Typography } from '@material-ui/core';
 
 const SEC_COLOR = '#718dbd';
 const SEC_COLOR_DARK = '#5572a5'
@@ -49,6 +50,7 @@ const chipContainer = React.createRef();
 function App() {
 
     const [chipData, setChipData] = React.useState([]);
+    const [statusText, setStatusText] = React.useState(" ");
       
     const handleDelete = (chipToDelete) => () => {
         setChipData((chips) => chips.filter((chip) => chip.key !== chipToDelete.key));
@@ -74,7 +76,7 @@ function App() {
 
                 <StyledButton id='button_submit' 
                               startIcon={<PublishIcon />}
-                              onClick={() => submit(setChipData)}>
+                              onClick={() => submit(setChipData, setStatusText)}>
                     SUBMIT
                 </StyledButton>
 
@@ -100,10 +102,10 @@ function App() {
                                              placeholder="Results appear here" />
                     }
                 ]}/>
-
-                <h3 id='statusText' style={{marginTop: '1em', fontSize: '0.65em', color: '#AAAAAA'}}>
-                    Status text
-                </h3>
+                
+                <Typography id='statusText' variant="h6" style={{color: "#AAA"}}>
+                    {statusText}
+                </Typography>
 
                 <a className="App-link"
                    target="_blank"
@@ -118,15 +120,14 @@ function App() {
     );
 }
 
-function submit(setChipData) {
+function submit(setChipData, setStatusText) {
     let textInput = document.getElementById('textInput').value;
-    let slider1 = document.getElementById('slider1').value;
-    let slider2 = document.getElementById('slider2').value;
-    let slider3 = document.getElementById('slider3').value;
-    let slider4 = document.getElementById('slider4').value;
-    let sliderMin = document.getElementById('sliderMin').value;
-    let sliderMax = document.getElementById('sliderMax').value;
-    let statusText = document.getElementById('statusText');
+    let slider1 = parseInt(document.getElementById('slider1').value);
+    let slider2 = parseInt(document.getElementById('slider2').value);
+    let slider3 = parseInt(document.getElementById('slider3').value);
+    let slider4 = parseInt(document.getElementById('slider4').value);
+    let sliderMin = parseInt(document.getElementById('sliderMin').value);
+    let sliderMax = parseInt(document.getElementById('sliderMax').value);
 
     if (textInput == '') {
         return;
@@ -134,7 +135,7 @@ function submit(setChipData) {
 
     let json = JSON.stringify({
         text: textInput,
-        ngram: [slider1, slider2, slider3, slider4],
+        ngrams: [slider1, slider2, slider3, slider4],
         chars: [sliderMin, sliderMax]  
     });
 
@@ -144,25 +145,25 @@ function submit(setChipData) {
         body: json
     };
 
-    fetch('https://keyword.bitgnd.com:5000/generate', requestOptions)
+    // 'https://keyword.bitgnd.com:5000/generate'
+    fetch('http://localhost:5001/generate', requestOptions)
         .then(async response => {
-            const data = await response.json();
-            
-            statusText.innerHTML = data['message'];
-
-            // check for error response
+            const response_json = await response.json();
+            // Check if status in range 200-299
             if (!response.ok) {
-                // get error message from body or default to response status
-                const error = (data && data.message) || response.status;
-                return Promise.reject(error);
+                return Promise.reject(response_json);
             }
-            let result = data['result'].flat();
+            let result = response_json['data']['result'].flat();
             let chipData = result.map((x, i) => ({ key: i, label: x}));
             setChipData(chipData);
+
+            let lengths = response_json['data']['result'].map(x => x.length);
+            let msg = "Result: " + lengths.map((n, i) => `[${n}] ${i+1}-grams`).join(', ');
+            setStatusText(msg);
         })
-        .catch(error => {
-            //this.setState({ errorMessage: error.toString() });
-            console.error('There was an error!', error);
+        .catch(errorJson => {
+            console.error(errorJson);
+            setStatusText(errorJson['error']['message']);
         });
 }
 
