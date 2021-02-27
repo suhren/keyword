@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   heading: {
     fontSize: theme.typography.pxToRem(15),
     marginLeft: 'auto',
-    marginRight: 'auto'
+    marginRight: 'auto',
   },
   secondaryHeading: {
     fontSize: theme.typography.pxToRem(15),
@@ -73,8 +73,9 @@ export default function DetailedAccordion() {
         <AccordionSummary
           aria-controls="panel1c-content"
           id="panel1c-header"
+          style={{backgroundColor: '#373c45'}}
         >
-        <Typography className={classes.heading}>Options</Typography>
+        <Typography className={classes.heading}>OPTIONS</Typography>
         </AccordionSummary>
         <Divider />
         <AccordionDetails id='flexContainer' className={classes.details}>

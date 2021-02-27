@@ -19,6 +19,8 @@ import DetailedAccordion from './Accordion';
 import ChipContainer from './ChipContainer';
 import Chip from '@material-ui/core/Chip';
 
+import TabPanel from './TabPanel';
+
 const SEC_COLOR = '#718dbd';
 const SEC_COLOR_DARK = '#5572a5'
 
@@ -46,13 +48,7 @@ const chipContainer = React.createRef();
 
 function App() {
 
-    const [chipData, setChipData] = React.useState([
-        { key: 0, label: 'Angular' },
-        { key: 1, label: 'jQuery' },
-        { key: 2, label: 'Polymer' },
-        { key: 3, label: 'React' },
-        { key: 4, label: 'Vue.js' },
-      ]);
+    const [chipData, setChipData] = React.useState([]);
       
     const handleDelete = (chipToDelete) => () => {
         setChipData((chips) => chips.filter((chip) => chip.key !== chipToDelete.key));
@@ -82,23 +78,33 @@ function App() {
                     SUBMIT
                 </StyledButton>
 
-                <ChipContainer chipData={chipData} handleDelete={handleDelete}/>
+                <TabPanel inner={[
+                    { 
+                        label: 'Chips',
+                        component: <ChipContainer chipData={chipData} handleDelete={handleDelete}/>
+                    },
+                    { 
+                        label: 'List',
+                        component: <textarea className="textarea"
+                                             rows='10'
+                                             value={chipData.map(x => x.label).join('\n')}
+                                             onChange={() => {}}
+                                             placeholder="Results appear here" />
+                    },
+                    { 
+                        label: 'CSV',
+                        component: <textarea className="textarea"
+                                             rows='10'
+                                             value={chipData.map(x => x.label).join(', ')}
+                                             onChange={() => {}}
+                                             placeholder="Results appear here" />
+                    }
+                ]}/>
 
-                <h3 id='statusText' style={{fontSize: '0.65em', color: '#AAAAAA'}}>
+                <h3 id='statusText' style={{marginTop: '1em', fontSize: '0.65em', color: '#AAAAAA'}}>
                     Status text
                 </h3>
 
-                <textarea className="textarea"
-                          id="textOutput"
-                          rows="10"
-                          placeholder="Results appear here">
-                </textarea>
-
-                
-                <StyledButton startIcon={<CachedIcon />} onClick={to_csv} id='button_csv'>
-                    TO CSV
-                </StyledButton>
-                
                 <a className="App-link"
                    target="_blank"
                    rel="noopener noreferrer"
@@ -150,14 +156,9 @@ function submit(setChipData) {
                 const error = (data && data.message) || response.status;
                 return Promise.reject(error);
             }
-            let outputTextarea = document.getElementById('textOutput');
-
             let result = data['result'].flat();
             let chipData = result.map((x, i) => ({ key: i, label: x}));
             setChipData(chipData);
-            outputTextarea.value = result.join('\n');
-
-            //this.setState({ postId: data.id })
         })
         .catch(error => {
             //this.setState({ errorMessage: error.toString() });
@@ -165,11 +166,5 @@ function submit(setChipData) {
         });
 }
 
-function to_csv() {
-    var resArea = document.getElementById("textOutput");
-    let text = resArea.value;
-    let tokens = text.split('\n');
-    resArea.value = tokens.join(', ');
-}
 
 export default App;
