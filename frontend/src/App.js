@@ -16,6 +16,7 @@ import React from 'react';
 import Button from '@material-ui/core/Button';
 
 import DetailedAccordion from './Accordion';
+import ChipContainer from './ChipContainer';
 import Chip from '@material-ui/core/Chip';
 
 const SEC_COLOR = '#718dbd';
@@ -41,7 +42,22 @@ const StyledButton = withStyles({
 })(Button);
 
 
+const chipContainer = React.createRef();
+
 function App() {
+
+    const [chipData, setChipData] = React.useState([
+        { key: 0, label: 'Angular' },
+        { key: 1, label: 'jQuery' },
+        { key: 2, label: 'Polymer' },
+        { key: 3, label: 'React' },
+        { key: 4, label: 'Vue.js' },
+      ]);
+      
+    const handleDelete = (chipToDelete) => () => {
+        setChipData((chips) => chips.filter((chip) => chip.key !== chipToDelete.key));
+    };
+
     return (
         <div className="App">
 
@@ -59,11 +75,14 @@ function App() {
                 
                 <DetailedAccordion />
 
-                {/* <Chip label="Barbados" onDelete={() => {}} /> */}
 
-                <StyledButton startIcon={<PublishIcon />} onClick={submit} id='button_submit'>
+                <StyledButton id='button_submit' 
+                              startIcon={<PublishIcon />}
+                              onClick={() => submit(setChipData)}>
                     SUBMIT
                 </StyledButton>
+
+                <ChipContainer chipData={chipData} handleDelete={handleDelete}/>
 
                 <h3 id='statusText' style={{fontSize: '0.65em', color: '#AAAAAA'}}>
                     Status text
@@ -93,7 +112,7 @@ function App() {
     );
 }
 
-function submit() {
+function submit(setChipData) {
     let textInput = document.getElementById('textInput').value;
     let slider1 = document.getElementById('slider1').value;
     let slider2 = document.getElementById('slider2').value;
@@ -132,7 +151,11 @@ function submit() {
                 return Promise.reject(error);
             }
             let outputTextarea = document.getElementById('textOutput');
-            outputTextarea.value = data['result'].flat().join('\n');
+
+            let result = data['result'].flat();
+            let chipData = result.map((x, i) => ({ key: i, label: x}));
+            setChipData(chipData);
+            outputTextarea.value = result.join('\n');
 
             //this.setState({ postId: data.id })
         })
