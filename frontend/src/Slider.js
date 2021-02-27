@@ -11,7 +11,6 @@ const useStyles = makeStyles({
     width: '80%',
     marginLeft: 'auto',
     marginRight: 'auto',
-    verticalAlign: 'top',
     display: 'inline-block',
   },
   label: {
@@ -19,8 +18,8 @@ const useStyles = makeStyles({
   },
   input: {
     width: 42,
-    color: 'white',
-    borderBottom: '2px solid #AAA !important'
+    color: '#AAA',
+    borderBottom: '1px solid #AAA !important'
   },
 });
 

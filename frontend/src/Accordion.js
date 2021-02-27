@@ -12,6 +12,11 @@ import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 
 import Slider from './Slider'
+import './Accordion.css';
+
+/*
+https://stackoverflow.com/questions/56045114/flexbox-layout-with-two-columns-on-desktop-and-one-column-on-mobile
+*/
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -72,17 +77,17 @@ export default function DetailedAccordion() {
         <Typography className={classes.heading}>Options</Typography>
         </AccordionSummary>
         <Divider />
-        <AccordionDetails className={classes.details}>
-          <div className={classes.column}>
-            <Slider min={0} max={100} val={35} id='slider1' label='# of 1-grams'/>
-            <Slider min={0} max={100} val={15} id='slider2' label='# of 2-grams'/>
-            <Slider min={0} max={100} val={0} id='slider3' label='# of 3-grams'/>
-            <Slider min={0} max={100} val={0} id='slider4' label='# of 4-grams'/>
-          </div>
-          <div className={clsx(classes.column, classes.helper)}>
-            <Slider min={1} max={50} val={4} id='sliderMin' label='Min # of characters'/>
-            <Slider min={1} max={50} val={30} id='sliderMax' label='Max # of characters'/>
-          </div>
+        <AccordionDetails id='flexContainer' className={classes.details}>
+        <div className={classes.column}>
+            <Slider min={0} max={100} val={35} id='slider1' label='1-grams'/>
+            <Slider min={0} max={100} val={15} id='slider2' label='2-grams'/>
+            <Slider min={0} max={100} val={0} id='slider3' label='3-grams'/>
+            <Slider min={0} max={100} val={0} id='slider4' label='4-grams'/>
+        </div>
+        <div className={clsx(classes.column, classes.helper)}>
+            <Slider min={1} max={50} val={4} id='sliderMin' label='Min. chars'/>
+            <Slider min={1} max={50} val={30} id='sliderMax' label='Max. chars'/>
+        </div>
         </AccordionDetails>
       </Accordion>
     </div>
