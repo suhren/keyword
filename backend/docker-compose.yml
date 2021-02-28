@@ -10,6 +10,7 @@ services:
     - ./certs:/etc/nginx/nginx_cert
     ports:
     - 443:443
+    - 80:80
     networks:
     - my-network
     depends_on:

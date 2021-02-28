@@ -3,6 +3,7 @@ import typing as t
 
 import connexion
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from pydantic import BaseModel, ValidationError, validator, conlist
 
 _logger = logging.getLogger('api')
@@ -107,5 +108,7 @@ def create_app():
 
     # Read the swagger.yml file to configure the endpoints
     application.add_api('api_spec.yml')
+
+    CORS(application.app)
 
     return application
