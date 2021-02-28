@@ -13,10 +13,12 @@ from nltk.collocations import BigramCollocationFinder, \
                               QuadgramCollocationFinder
 
 
-nltk.download('stopwords')
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
-
+try:
+    nltk.download('stopwords')
+    nltk.download('punkt')
+    nltk.download('averaged_perceptron_tagger')
+except:
+    pass
 
 # NLTK Stop words of common, usually uninformative words in english
 STOP_WORDS = stopwords.words('english')
