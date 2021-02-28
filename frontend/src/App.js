@@ -145,7 +145,7 @@ function submit(setChipData, setStatusText) {
         body: json
     };
 
-    fetch('https://keyword.bitgnd/generate', requestOptions)
+    fetch('https://keyword.bitgnd.com/generate', requestOptions)
         .then(async response => {
             const response_json = await response.json();
             // Check if status in range 200-299
