@@ -1,13 +1,15 @@
+import logging
 import typing as t
 
-from flask import Flask, render_template, request
+import connexion
+from flask import Flask, request, jsonify
 from pydantic import BaseModel, ValidationError, validator, conlist
-# https://flask-cors.readthedocs.io/en/latest/
-# https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS/Errors/CORSMissingAllowOrigin
-from flask_cors import CORS
 
+_logger = logging.getLogger('api')
+_logger.setLevel(logging.DEBUG)
 
-from model import process
+from api.model import process
+
 
 HTTP_OK = 200
 HTTP_BAD_REQUEST = 400
@@ -18,8 +20,8 @@ CHARS_MAX = 100
 NGRAM_MIN = 0
 NGRAM_MAX = 100
 
-app = Flask(__name__)
-CORS(app)
+
+#app = Flask(__name__)
 
 
 class RequestJson(BaseModel):
@@ -49,7 +51,13 @@ class RequestJson(BaseModel):
         return v
 
 
-@app.route('/generate', methods=['POST'])
+def health():
+    if request.method == "GET":
+        status = {"status": "ok"}
+        _logger.debug(status)
+        return jsonify(status)
+
+
 def generate():
 
     # Parse and validate the request JSON
@@ -91,15 +99,13 @@ def generate():
     }, HTTP_OK)
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0',
-            port=5000,
-            debug=True,
-            ssl_context=('cert.pem', 'key.pem'))
 
-"""
-if __name__ == '__main__':
-    app.run(host='localhost',
-            port=5001,
-            debug=True)
-"""
+def create_app():
+
+    # Create the application instance
+    application = connexion.App(__name__, specification_dir='./')
+
+    # Read the swagger.yml file to configure the endpoints
+    application.add_api('api_spec.yml')
+
+    return application

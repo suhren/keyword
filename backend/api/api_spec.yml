@@ -1,0 +1,32 @@
+openapi: 3.0.0
+
+info:
+  description: This is the swagger file that goes with our server code
+  version: "1.0.0"
+  title: Swagger REST Article
+
+# Paths supported by the server application
+paths:
+  /:
+    get:
+      operationId: api.app.health
+      responses:
+        '200':
+          description: API Health Status
+
+  /generate:
+    post:
+      operationId: "api.app.generate"
+      tags:
+        - "Generate"
+      summary: "Generate keywords from text"
+      description: "Generate keywords from text"
+      responses:
+        200:
+          description: "Successful generation of keywords"
+      responses:
+        400:
+          description: "Bad request"
+      responses:
+        500:
+          description: "Internal server error"
