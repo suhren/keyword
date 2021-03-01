@@ -1,9 +1,9 @@
 openapi: 3.0.0
 
 info:
-  description: This is the swagger file that goes with our server code
+  description: This API can be used to generate keywords from texts
   version: "1.0.0"
-  title: Swagger REST Article
+  title: Keyword generator API
 
 # Paths supported by the server application
 paths:
@@ -13,28 +13,61 @@ paths:
       operationId: api.app.index
       responses:
         '200':
-          description: API Index
+          description: API index (redirecting to the Swagger ui)
+      tags:
+        - "Utility"
 
   /health:
     get:
       operationId: api.app.health
       responses:
         '200':
-          description: API Health Status
+          description: API health status
+      tags:
+        - "Utility"
 
   /generate:
     post:
       operationId: "api.app.generate"
       tags:
-        - "Generate"
+        - "Generation"
       summary: "Generate keywords from text"
       description: "Generate keywords from text"
+      requestBody:
+        description: "Input text and configuration to generate keywords"
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+              - text
+              example:
+                text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sit amet nunc vulputate, placerat nisi sed, ullamcorper tellus. Maecenas mollis ultrices lectus, vitae mattis erat faucibus at. Proin cursus, urna nec maximus eleifend, tellus tellus aliquet purus, condimentum mollis velit tortor sollicitudin nisl. In hac habitasse platea dictumst. Praesent dolor magna, efficitur quis nisl sed, rhoncus commodo justo. Fusce dignissim et ligula in hendrerit. Vestibulum et dolor eleifend, ultrices ipsum ac, tincidunt massa. Nunc elit dolor, pharetra eget gravida ullamcorper, mattis in neque. Ut non nisl a mauris iaculis volutpat."
+                ngrams: [5, 2, 0, 0]
+                chars: [3, 30]
+              type: "object"
+              properties:
+                text:
+                  type: "string"
+                  description: "The text to be processed"
+                ngrams:
+                  type: "array"
+                  description: "The number of ngrams to generate"
+                  minItems: 4
+                  maxItems: 4
+                  items:
+                    type: "integer"
+                chars:
+                  type: "array"
+                  description: "The minimum and maximum number of characters"
+                  minItems: 2
+                  maxItems: 2
+                  items:
+                    type: "integer"
       responses:
         200:
           description: "Successful generation of keywords"
-      responses:
         400:
           description: "Bad request"
-      responses:
         500:
           description: "Internal server error"
