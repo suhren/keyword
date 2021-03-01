@@ -7,7 +7,15 @@ info:
 
 # Paths supported by the server application
 paths:
+
   /:
+    get:
+      operationId: api.app.index
+      responses:
+        '200':
+          description: API Index
+
+  /health:
     get:
       operationId: api.app.health
       responses:

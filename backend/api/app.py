@@ -2,7 +2,7 @@ import logging
 import typing as t
 
 import connexion
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect
 from flask_cors import CORS
 from pydantic import BaseModel, ValidationError, validator, conlist
 
@@ -50,6 +50,11 @@ class RequestJson(BaseModel):
         assert CHARS_MIN <= v[0] <= v[1] <= CHARS_MAX, \
                f'chars must follow {CHARS_MIN} <= min <= max <= {CHARS_MAX}'
         return v
+
+
+def index():
+    if request.method == "GET":
+        return redirect(request.base_url + 'ui')
 
 
 def health():
