@@ -5,9 +5,16 @@ info:
   version: "1.0.0"
   title: Keyword generator API
 
+
+servers:
+- url: http://{base}/
+  description: API for generating keywords.
+  variables:
+    base:
+      default: 0.0.0.0
+
 # Paths supported by the server application
 paths:
-
   /:
     get:
       operationId: api.app.index
@@ -16,7 +23,6 @@ paths:
           description: API index (redirecting to the Swagger ui)
       tags:
         - "Utility"
-
   /health:
     get:
       operationId: api.app.health
@@ -25,7 +31,6 @@ paths:
           description: API health status
       tags:
         - "Utility"
-
   /generate:
     post:
       operationId: "api.app.generate"

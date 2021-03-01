@@ -1,9 +1,6 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
-import Chip from '@material-ui/core/Chip';
-import Paper from '@material-ui/core/Paper';
-import TagFacesIcon from '@material-ui/icons/TagFaces';
-import { Typography } from '@material-ui/core';
+import { Chip, Paper, Typography, makeStyles } from '@material-ui/core';
+
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -25,15 +22,15 @@ const useStyles = makeStyles((theme) => ({
 
 
 export default function ChipsArray(props) {
-    
+
     const classes = useStyles();
-  
+
     // Props: chipData, handleDelete
-  
+
     if (props.chipData.length == 0) {
         return (<Typography style={{color: '#AAA'}}> Results appear here </Typography>);
     }
-    else { 
+    else {
         return (
             <Paper component="ul" className={classes.root}>
             {
@@ -44,7 +41,6 @@ export default function ChipsArray(props) {
                         <li key={data.key}>
                             <Chip icon={icon}
                                 label={data.label}
-                                //onDelete={data.label === 'React' ? undefined : handleDelete(data)}
                                 onDelete={props.handleDelete(data)}
                                 className={classes.chip}/>
                         </li>

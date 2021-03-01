@@ -1,7 +1,3 @@
-code {
-    color: "#AAAAAA";
-}
-
 .App {
   text-align: center;
   background-color: #282c34;
@@ -20,7 +16,7 @@ code {
   margin-right: auto;
 }
 
-  
+
 @media only screen and (min-width: 1024px) {
     .App-header {
         width: 60%;

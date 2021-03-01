@@ -1,3 +1,7 @@
+"""
+Model module used to extract keywords from text sources.
+"""
+
 import typing as t
 import collections
 
@@ -6,16 +10,25 @@ import regex as re
 import nltk
 from nltk.corpus import stopwords
 from nltk.metrics import BigramAssocMeasures, \
-                         TrigramAssocMeasures, \
-                         QuadgramAssocMeasures
+    TrigramAssocMeasures, \
+    QuadgramAssocMeasures
 from nltk.collocations import BigramCollocationFinder, \
-                              TrigramCollocationFinder, \
-                              QuadgramCollocationFinder
+    TrigramCollocationFinder, \
+    QuadgramCollocationFinder
 
 
+# Try to download NLTK dependencies if not already present.
+# The try is 'required' if we spawn several workers using this module
+# as they might attempt the download at the same time.
 try:
     nltk.download('stopwords')
+except:
+    pass
+try:
     nltk.download('punkt')
+except:
+    pass
+try:
     nltk.download('averaged_perceptron_tagger')
 except:
     pass
@@ -37,15 +50,17 @@ RE_SPACE = re.compile(r'\s+')
 RE_TOKEN = re.compile(r"\s|(?<!\d)[,.](?!\d)")
 
 
-def filter_min_char(word, n):
-    return len(word) >= n
-    
+def filter_min_char(word: str, num: int):
+    """ Return only words with a minimum number of characters """
+    return len(word) >= num
 
-def filter_max_char(word, n):
-    return len(word) <= n
-    
 
-def filter_1_grams(ngram):
+def filter_max_char(word: str, num: int):
+    """ Return only words with a maximum number of characters """
+    return len(word) <= num
+
+
+def filter_1_grams(ngram: t.Tuple[str]):
     """
     Select tokens considered useful in a 1-gram.
     We require that the part-of-speach of the token is a noun,
@@ -55,7 +70,7 @@ def filter_1_grams(ngram):
     return tags[0][1] in POS_NOUN and ngram[0] not in STOP_WORDS
 
 
-def filter_2_grams(ngram):
+def filter_2_grams(ngram: t.Tuple[str]):
     """
     Select tokens considered useful in a 2-gram.
     We require that the part-of-speach of the second token is a noun,
@@ -64,38 +79,32 @@ def filter_2_grams(ngram):
     for word in ngram:
         if word in STOP_WORDS:
             return False
-    tags = nltk.pos_tag(ngram)   
+    tags = nltk.pos_tag(ngram)
     return tags[1][1] in POS_NOUN
 
 
-def filter_3_grams(ngram):
+def filter_3_grams(ngram: t.Tuple[str]):
     """
     Select tokens considered useful in a 3-gram.
     We require that the part-of-speach of the first and third token are nouns
     or adjectives
     """
-    tags = nltk.pos_tag(ngram)   
+    tags = nltk.pos_tag(ngram)
     return tags[0][1] in POS_NOUN_ADJ and tags[2][1] in POS_NOUN_ADJ
 
 
-def filter_4_grams(ngram):
+def filter_4_grams(ngram: t.Tuple[str]):
     """
     Select tokens considered useful in a 4-gram.
     We require that the part-of-speach of the first and fourth token are nouns
     or adjectives
     """
-    tags = nltk.pos_tag(ngram)   
+    tags = nltk.pos_tag(ngram)
     return tags[0][1] in POS_NOUN_ADJ and tags[3][1] in POS_NOUN_ADJ
 
 
-def filter_token(token):
-    """
-    Filter out non-alphabetic, or short tokens
-    """
-    return RE_ALPHA.match(token) is not None and len(token) > 1
-
-
-def get_sentences(text):
+def get_sentences(text: str):
+    """ Split the input text into sentences """
     # Split text into separate lines by newline characters
     lines = text.splitlines(keepends=False)
     # Replace all whitespace character like \t and \s with a single space
@@ -104,12 +113,14 @@ def get_sentences(text):
     return [sent for line in lines for sent in nltk.sent_tokenize(line)]
 
 
-def is_alpha(token):
+def is_alpha(token: str):
+    """ Check if the token is alphabetic (alpha) """
     return RE_ALPHA.match(token) is not None
 
 
-def filter_token(token):
-    return  len(token) > 1 and token not in STOP_WORDS
+def filter_token(token: str):
+    """ Filter unnecessary tokens for the unigram model """
+    return len(token) > 1 and token not in STOP_WORDS
 
 
 def df_top(tuples: t.List[tuple],
@@ -117,21 +128,25 @@ def df_top(tuples: t.List[tuple],
            min_char: t.Optional[int] = None,
            max_char: t.Optional[int] = None,
            token_filter: t.Optional[t.Callable] = None):
-    
-        df = pd.DataFrame(tuples, columns=['entry', 'score'])
-        # Somewhat greedy, but only consider the top 500 tokens
-        df = df.sort_values(by='score', ascending=False).head(500)
-        if token_filter is not None:
-            df = df[df['entry'].map(lambda x: token_filter(x))]
-        df['entry'] = df['entry'].apply(' '.join)
+    """
+    Get a dataframe of the top (token, score) tuples by score after
+    filtering for minimum/maximum number of characters and n-gram token filter.
+    """
 
-        if min_char is not None:
-            df = df[df['entry'].map(lambda x: filter_min_char(x, min_char))]
-        if max_char is not None:
-            df = df[df['entry'].map(lambda x: filter_max_char(x, max_char))]
-        
-        if len(df) > 0:
-            return df.iloc[:num] if num is not None else df
+    df = pd.DataFrame(tuples, columns=['entry', 'score'])
+    # Somewhat greedy, but only consider the top 500 tokens
+    df = df.sort_values(by='score', ascending=False).head(500)
+    if token_filter is not None:
+        df = df[df['entry'].map(token_filter)]
+    df['entry'] = df['entry'].apply(' '.join)
+
+    if min_char is not None:
+        df = df[df['entry'].map(lambda x: filter_min_char(x, min_char))]
+    if max_char is not None:
+        df = df[df['entry'].map(lambda x: filter_max_char(x, max_char))]
+
+    if len(df) > 0:
+        return df.iloc[:num] if num is not None else df
 
 
 def process(text: str,
@@ -141,7 +156,8 @@ def process(text: str,
             num_4_grams: int = 100,
             min_chars: int = 3,
             max_chars: int = 30):
-    
+    """ Extract keywords from text sources """
+
     # Find all sentences in the text
     sents = get_sentences(text)
 
@@ -155,17 +171,19 @@ def process(text: str,
     # and len(word) > 1
 
     # Filter out non-alphabetic tokens and convert to lowercase
-    sents = [[token.lower() for token in sent if is_alpha(token)] for sent in sents]
+    sents = [[token.lower() for token in sent if is_alpha(token)]
+             for sent in sents]
 
     # We look at two variants of the input sentences
     # a. For 1-grams, we remove all stopwords, short tokens, and possesives
     # b. For 2-grams and longer, we want to keep stopwords and short tokens as
     #    these might provide some information in relation to other words
-    sents_a = [[RE_POSS.sub('', t) for t in sent if filter_token(t)] for sent in sents]
+    sents_a = [[RE_POSS.sub('', t)
+                for t in sent if filter_token(t)] for sent in sents]
     sents_b = sents
-    
+
     assert len(sents_a) > 0 and len(sents_b), 'Not enough words'
-    
+
     counter = collections.Counter()
     for sent in sents_a:
         for token in sent:
@@ -177,45 +195,45 @@ def process(text: str,
         # Represent tokens using a tuple with only one element to match the
         # format of the other ngrams with n > 1
         tuples = [((token, ), count) for token, count in counter.items()]
-        df = df_top(tuples=tuples,
-                    num=num_1_grams,
-                    token_filter=filter_1_grams,
-                    min_char=min_chars,
-                    max_char=max_chars)
-        if df is not None:
-            res[0] = df['entry'].tolist()
+        df_1 = df_top(tuples=tuples,
+                      num=num_1_grams,
+                      token_filter=filter_1_grams,
+                      min_char=min_chars,
+                      max_char=max_chars)
+        if df_1 is not None:
+            res[0] = df_1['entry'].tolist()
 
     if num_2_grams:
-        bigrams = BigramCollocationFinder.from_documents(sents_b) 
+        bigrams = BigramCollocationFinder.from_documents(sents_b)
         tuples = bigrams.score_ngrams(BigramAssocMeasures.raw_freq)
-        df = df_top(tuples=tuples,
-                    num=num_2_grams,
-                    token_filter=filter_2_grams,
-                    min_char=min_chars,
-                    max_char=max_chars)
-        if df is not None:
-            res[1] = df['entry'].tolist()
+        df_2 = df_top(tuples=tuples,
+                      num=num_2_grams,
+                      token_filter=filter_2_grams,
+                      min_char=min_chars,
+                      max_char=max_chars)
+        if df_2 is not None:
+            res[1] = df_2['entry'].tolist()
 
     if num_3_grams:
-        trigrams = TrigramCollocationFinder.from_documents(sents_b) 
+        trigrams = TrigramCollocationFinder.from_documents(sents_b)
         tuples = trigrams.score_ngrams(TrigramAssocMeasures.raw_freq)
-        df = df_top(tuples=tuples,
-                    num=num_3_grams,
-                    token_filter=filter_3_grams,
-                    min_char=min_chars,
-                    max_char=max_chars)
-        if df is not None:
-            res[2] = df['entry'].tolist()
+        df_3 = df_top(tuples=tuples,
+                      num=num_3_grams,
+                      token_filter=filter_3_grams,
+                      min_char=min_chars,
+                      max_char=max_chars)
+        if df_3 is not None:
+            res[2] = df_3['entry'].tolist()
 
     if num_4_grams:
-        quadgrams = QuadgramCollocationFinder.from_documents(sents_b) 
+        quadgrams = QuadgramCollocationFinder.from_documents(sents_b)
         tuples = quadgrams.score_ngrams(QuadgramAssocMeasures.raw_freq)
-        df = df_top(tuples=tuples,
-                    num=num_4_grams,
-                    token_filter=filter_4_grams,
-                    min_char=min_chars,
-                    max_char=max_chars)
-        if df is not None:
-            res[3] = df['entry'].tolist()
+        df_4 = df_top(tuples=tuples,
+                      num=num_4_grams,
+                      token_filter=filter_4_grams,
+                      min_char=min_chars,
+                      max_char=max_chars)
+        if df_4 is not None:
+            res[3] = df_4['entry'].tolist()
 
     return res
