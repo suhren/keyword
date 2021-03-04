@@ -40,7 +40,7 @@ const EditButton = withStyles({
         height: 32,
         padding: '0',
         margin: '0px 0em 0em auto',
-        fontSize: '0.5rem',
+        fontSize: '0.6rem',
     }
 })(Button);
 
@@ -63,9 +63,14 @@ function App() {
                 </h1>
 
                 <EditButton startIcon={<ClearIcon />}
-                            onClick={() =>  document.getElementById('textInput').value = ''}>
+                            onClick={() =>  {
+                                document.getElementById('textInput').value = '';
+                                setChipData([]);
+                                setStatusText('');
+                            }}>
                     CLEAR
                 </EditButton>
+
                 <textarea className="textarea"
                           rows="10"
                           margin="0"
