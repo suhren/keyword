@@ -87,7 +87,7 @@ function App() {
                         PASTE
                     </EditButton>
                     <EditButton startIcon={<ClearIcon />}
-                              onClick={() =>  document.getElementById('textInput').value = ''}>
+                                onClick={() =>  document.getElementById('textInput').value = ''}>
                         CLEAR
                     </EditButton>
                 </div>
@@ -122,14 +122,14 @@ function App() {
                     }
                 ]}/>
 
-                <Typography id='statusText' variant="h6" style={{color: "#AAA"}}>
+                <Typography id='statusText' variant="h6" style={{color: "#AAA", margin: '0.5em'}}>
                     {statusText}
                 </Typography>
 
                 <a className="App-link"
                    href="https://github.com/suhren/keyword/">
                     <img src={github_logo}
-                         style={{margin: "32px", width:'64px', height: '64px'}} />
+                         style={{margin: "1em", width:'64px', height: '64px'}} />
                 </a>
 
             </header>
@@ -147,7 +147,8 @@ function submit(setChipData, setStatusText) {
     let sliderMin = parseInt(document.getElementById('sliderMin').value);
     let sliderMax = parseInt(document.getElementById('sliderMax').value);
 
-    if (textInput == '') {
+    if (textInput.split(" ").length < 10) {
+        setStatusText('Enter at least 10 words');
         return;
     }
 
