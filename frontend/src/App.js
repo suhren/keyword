@@ -6,6 +6,9 @@ import github_logo from './github-svgrepo-com.svg';
 
 import React from 'react';
 import PublishIcon from '@material-ui/icons/Publish';
+import ClearIcon from '@material-ui/icons/Clear';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
+import AssignmentIcon from '@material-ui/icons/Assignment';
 import { Button, Typography, withStyles } from '@material-ui/core';
 
 
@@ -15,7 +18,7 @@ const SEC_COLOR = '#718dbd';
 const SEC_COLOR_DARK = '#5572a5'
 
 
-const StyledButton = withStyles({
+const MainButton = withStyles({
     root: {
         background: SEC_COLOR,
         '&:hover': {
@@ -28,12 +31,25 @@ const StyledButton = withStyles({
     }
 })(Button);
 
+const EditButton = withStyles({
+    root: {
+        '&:hover': {
+            backgroundColor: SEC_COLOR_DARK,
+        },
+        color: '#AAA',
+        height: 32,
+        padding: '0 2em',
+        margin: '0px 1em 2em',
+        fontSize: '0.5rem'
+    }
+})(Button);
+
 
 function App() {
 
     const [chipData, setChipData] = React.useState([]);
     const [statusText, setStatusText] = React.useState(" ");
-      
+
     const handleDelete = (chipToDelete) => () => {
         setChipData((chips) => chips.filter((chip) => chip.key !== chipToDelete.key));
     };
@@ -42,32 +58,53 @@ function App() {
         <div className="App">
 
             <header className="App-header">
-                <h1 style={{margin: '1em 0 1em 0'}}>
+                <h1 style={{margin: '1em 0 1em 0', fontSize: '1.2em'}}>
                     Extract <code style={{color: "#718dbd"}}>keywords</code> from text documents!
                 </h1>
 
                 <textarea className="textarea"
                           rows="10"
-                          margin="normal"
+                          margin="0"
                           id="textInput"
                           label="Input text"
                           placeholder="Input text here"/>
-                
+
+                <div class="container" style={{display: 'flex', flexDirection: 'row', alignItems: 'flex-start'}}>
+                    <EditButton startIcon={<FileCopyIcon />}
+                                onClick={() =>  {
+                                    var copyText = document.getElementById('textInput');
+                                    copyText.select();
+                                    copyText.setSelectionRange(0, 99999);
+                                    document.execCommand("copy");
+                                }}>
+                        COPY
+                    </EditButton>
+                    <EditButton startIcon={<AssignmentIcon />}
+                                onClick={() => {
+                                    navigator.clipboard.readText()
+                                    .then((text) => { document.getElementById('textInput').value = text; })
+                                }}>
+                        PASTE
+                    </EditButton>
+                    <EditButton startIcon={<ClearIcon />}
+                              onClick={() =>  document.getElementById('textInput').value = ''}>
+                        CLEAR
+                    </EditButton>
+                </div>
+
                 <DetailedAccordion />
 
-
-                <StyledButton id='button_submit' 
-                              startIcon={<PublishIcon />}
-                              onClick={() => submit(setChipData, setStatusText)}>
+                <MainButton startIcon={<PublishIcon />}
+                            onClick={() => submit(setChipData, setStatusText)}>
                     SUBMIT
-                </StyledButton>
+                </MainButton>
 
                 <TabPanel inner={[
-                    { 
+                    {
                         label: 'Chips',
                         component: <ChipContainer chipData={chipData} handleDelete={handleDelete}/>
                     },
-                    { 
+                    {
                         label: 'List',
                         component: <textarea className="textarea"
                                              rows='10'
@@ -75,7 +112,7 @@ function App() {
                                              onChange={() => {}}
                                              placeholder="Results appear here" />
                     },
-                    { 
+                    {
                         label: 'CSV',
                         component: <textarea className="textarea"
                                              rows='10'
@@ -84,7 +121,7 @@ function App() {
                                              placeholder="Results appear here" />
                     }
                 ]}/>
-                
+
                 <Typography id='statusText' variant="h6" style={{color: "#AAA"}}>
                     {statusText}
                 </Typography>
@@ -117,7 +154,7 @@ function submit(setChipData, setStatusText) {
     let json = JSON.stringify({
         text: textInput,
         ngrams: [slider1, slider2, slider3, slider4],
-        chars: [sliderMin, sliderMax]  
+        chars: [sliderMin, sliderMax]
     });
 
     const requestOptions = {
