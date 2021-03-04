@@ -38,9 +38,9 @@ const EditButton = withStyles({
         },
         color: '#AAA',
         height: 32,
-        padding: '0 2em',
-        margin: '0px 1em 2em',
-        fontSize: '0.5rem'
+        padding: '0',
+        margin: '0px 0em 0em auto',
+        fontSize: '0.5rem',
     }
 })(Button);
 
@@ -62,6 +62,10 @@ function App() {
                     Extract <code style={{color: "#718dbd"}}>keywords</code> from text documents!
                 </h1>
 
+                <EditButton startIcon={<ClearIcon />}
+                            onClick={() =>  document.getElementById('textInput').value = ''}>
+                    CLEAR
+                </EditButton>
                 <textarea className="textarea"
                           rows="10"
                           margin="0"
@@ -69,28 +73,6 @@ function App() {
                           label="Input text"
                           placeholder="Input text here"/>
 
-                <div class="container" style={{display: 'flex', flexDirection: 'row', alignItems: 'flex-start'}}>
-                    <EditButton startIcon={<FileCopyIcon />}
-                                onClick={() =>  {
-                                    var copyText = document.getElementById('textInput');
-                                    copyText.select();
-                                    copyText.setSelectionRange(0, 99999);
-                                    document.execCommand("copy");
-                                }}>
-                        COPY
-                    </EditButton>
-                    <EditButton startIcon={<AssignmentIcon />}
-                                onClick={() => {
-                                    navigator.clipboard.readText()
-                                    .then((text) => { document.getElementById('textInput').value = text; })
-                                }}>
-                        PASTE
-                    </EditButton>
-                    <EditButton startIcon={<ClearIcon />}
-                                onClick={() =>  document.getElementById('textInput').value = ''}>
-                        CLEAR
-                    </EditButton>
-                </div>
 
                 <DetailedAccordion />
 
