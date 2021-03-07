@@ -1,9 +1,0 @@
-#flexContainer {
-    display: block;
-}
-  
-@media only screen and (min-width: 1024px) {
-    #flexContainer {
-        display: flex;
-    }
-}

@@ -1,26 +1,26 @@
 import './App.css';
 import TabPanel from './TabPanel';
-import DetailedAccordion from './Accordion';
 import ChipContainer from './ChipContainer';
 import github_logo from './github-svgrepo-com.svg';
 
 import React from 'react';
 import PublishIcon from '@material-ui/icons/Publish';
 import ClearIcon from '@material-ui/icons/Clear';
-import FileCopyIcon from '@material-ui/icons/FileCopy';
-import AssignmentIcon from '@material-ui/icons/Assignment';
-import { Button, Typography, withStyles } from '@material-ui/core';
+import { Button, Typography, Divider, withStyles } from '@material-ui/core';
 
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Slider from './Slider'
 
 const API_BASE = 'https://keyword.bitgnd.com/'
 const API_ENDPOINT = API_BASE + 'generate'
+
 const SEC_COLOR = '#718dbd';
 const SEC_COLOR_DARK = '#5572a5'
+const BAR_COLOR = '#373c45'
+const AREA_COLOR = '#1b212c'
 
 
 const MainButton = withStyles({
@@ -32,20 +32,7 @@ const MainButton = withStyles({
         color: 'white',
         height: 48,
         padding: '0 30px',
-        margin: '1em'
-    }
-})(Button);
-
-const EditButton = withStyles({
-    root: {
-        '&:hover': {
-            backgroundColor: SEC_COLOR_DARK,
-        },
-        color: '#AAA',
-        height: 32,
-        padding: '0',
-        margin: '0px 0em 0em auto',
-        fontSize: '0.6rem',
+        margin: '2em 2em 2em 2em'
     }
 })(Button);
 
@@ -63,18 +50,19 @@ function App() {
         <div className="App">
 
             <header className="App-header">
-                <h1 style={{margin: '1em 0 1em 0', fontSize: '1.2em'}}>
+                <h1 style={{margin: '1em 0 0.5em 0', fontSize: '1.2em'}}>
 
                     Extract <code style={{color: "#718dbd"}}>keywords</code> from text documents!
                 </h1>
 
-                <Accordion style={{backgroundColor: 'transparent'}}>
+                <div>
+                <Accordion style={{backgroundColor: AREA_COLOR}}>
                     <AccordionSummary
-                    expandIcon={<ExpandMoreIcon />}
+                        style={{backgroundColor: BAR_COLOR}}
                     >
                         <Typography style={{marginLeft: 'auto',
                                             marginRight: 'auto',
-                                            color: '#AAA'}}>
+                                            color: '#DDD'}}>
                             ABOUT
                         </Typography>
                     </AccordionSummary>
@@ -99,8 +87,8 @@ function App() {
                         by changing the options below:
                         <br/><br/>
                         The options 1-gram, through 4-gram refers to the general
-                        concept of <a href="https://en.wikipedia.org/wiki/N-gram">n-grams</a> 
-                        in linguistics. This is just a fancy term for
+                        concept of <a href="https://en.wikipedia.org/wiki/N-gram">n-grams</a> in
+                        linguistics. This is just a fancy term for
                         'a sequence of n words'. For example, a 1-gram (unigram) 
                         would be a single word like 'Cat' or 'Run'. A 2-gram 
                         (bigram) is sequence of two words, like 'New York' or 
@@ -115,15 +103,32 @@ function App() {
                     </Typography>
                     </AccordionDetails>
                 </Accordion>
-
-                <EditButton startIcon={<ClearIcon />}
-                            onClick={() =>  {
-                                document.getElementById('textInput').value = '';
-                                setChipData([]);
-                                setStatusText('');
-                            }}>
-                    CLEAR
-                </EditButton>
+                <Accordion style={{backgroundColor: AREA_COLOR, color: '#DDD'}}>
+                    <AccordionSummary
+                        style={{backgroundColor: BAR_COLOR}}
+                        >
+                        
+                        <Typography style={{marginLeft: 'auto',
+                                            marginRight: 'auto',
+                                            color: '#DDD'}}>
+                            OPTIONS
+                        </Typography>
+                    </AccordionSummary>
+                    <Divider />
+                    <AccordionDetails id='flexContainer'>
+                    <div>
+                        <Slider min={0} max={100} val={35} id='slider1' label='1-grams'/>
+                        <Slider min={0} max={100} val={15} id='slider2' label='2-grams'/>
+                        <Slider min={0} max={100} val={0} id='slider3' label='3-grams'/>
+                        <Slider min={0} max={100} val={0} id='slider4' label='4-grams'/>
+                    </div>
+                    <div>
+                        <Slider min={1} max={50} val={4} id='sliderMin' label='Min. chars'/>
+                        <Slider min={1} max={50} val={30} id='sliderMax' label='Max. chars'/>
+                    </div>
+                    </AccordionDetails>
+                </Accordion>
+                </div>
 
                 <textarea className="textarea"
                           rows="10"
@@ -132,13 +137,27 @@ function App() {
                           label="Input text"
                           placeholder="Input text here"/>
 
+                <div style={{display: 'inline-block'}}>
+                        
+                    <MainButton
+                        startIcon={<PublishIcon />}
+                        onClick={() => submit(setChipData, setStatusText)}
+                    >
+                        SUBMIT
+                    </MainButton>
 
-                <DetailedAccordion />
+                    <MainButton
+                        startIcon={<ClearIcon />}
+                        onClick={() =>  {
+                            document.getElementById('textInput').value = '';
+                            setChipData([]);
+                            setStatusText('');
+                        }}
+                    >
+                        CLEAR
+                    </MainButton>
+                </div>
 
-                <MainButton startIcon={<PublishIcon />}
-                            onClick={() => submit(setChipData, setStatusText)}>
-                    SUBMIT
-                </MainButton>
 
                 <TabPanel inner={[
                     {
