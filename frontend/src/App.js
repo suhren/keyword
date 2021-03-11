@@ -70,36 +70,42 @@ function App() {
                     <Typography style={{fontSize: '0.6em',
                                         color: '#AAA',
                                         textAlign:'left'}}>
-                        This app can extract common keywords or phrases from texts. 
+                        This app can extract common keywords or phrases from texts.
                         You can do this by copying some source of text, like e.g.
-                        an article on Wikipedia, and pasting it into thetext area.
-                        Pressing the submit button will send the text to the API
-                        backend where the keywords are extracted. These aFor examplere then
-                        sent back to this interface and presented below.
+                        an article on Wikipedia, and pasting it into the text area.
+                        The algorithm is robust enough so that you can literally go
+                        to an article, select all text with CTRL+A, copy it with
+                        CTRL+C, and finally paste it here with CTRL+V, and it should
+                        work. Pressing the submit button will send the text to the API
+                        back end where the keywords are extracted. These are then
+                        sent back to this interface and presented below. The
+                        algorithm is specifically tuned for english language, as
+                        it has some knowledge about certain english parts-of-speech,
+                        such as Nouns, Adjectives, and Verbs. It will however also
+                        work with other languages, albeit a bit worse.
                         <br/><br/>
-                        You can view the results as 'chips' where you can also 
+                        You can view the results as 'chips' where you can also
                         remove results that are not of good quality by pressing
                         the 'X' in each chip. After you are happy with the words,
                         you can also view them as either a list or as
                         comma-separated values (CSV) by navigating in the tab panel.
                         <br/><br/>
                         You can also control how the algorithm searches for keywords
-                        by changing the options below:
-                        <br/><br/>
-                        The options 1-gram, through 4-gram refers to the general
-                        concept of <a href="https://en.wikipedia.org/wiki/N-gram">n-grams</a> in
+                        by changing the options below: The options 1-gram, through
+                        4-gram refers to the general concept of
+                        <a href="https://en.wikipedia.org/wiki/N-gram">n-grams</a> in
                         linguistics. This is just a fancy term for
-                        'a sequence of n words'. For example, a 1-gram (unigram) 
-                        would be a single word like 'Cat' or 'Run'. A 2-gram 
-                        (bigram) is sequence of two words, like 'New York' or 
+                        'a sequence of n words'. For example, a 1-gram (unigram)
+                        would be a single word like 'Cat' or 'Apple'. A 2-gram
+                        (bigram) is sequence of two words, like 'New York' or
                         'Apple pie'. This same logic applies for 3- and 4-grams. By
                         looking at the most statistically frequent n-grams, these
-                        are in practice used to find 'collocations', or common 
-                        sequences of words in the text. 
+                        are in practice used to find 'collocations', or common
+                        sequences of words in the text.
                         <br/><br/>
                         The results can also be be controlled by specifcying the
                         minimum and maximum allowed number of characters per result
-                        (spaces not included).    
+                        (spaces not included).
                     </Typography>
                     </AccordionDetails>
                 </Accordion>
@@ -107,7 +113,7 @@ function App() {
                     <AccordionSummary
                         style={{backgroundColor: BAR_COLOR}}
                         >
-                        
+
                         <Typography style={{marginLeft: 'auto',
                                             marginRight: 'auto',
                                             color: '#DDD'}}>
@@ -116,13 +122,13 @@ function App() {
                     </AccordionSummary>
                     <Divider />
                     <AccordionDetails id='flexContainer'>
-                    <div>
+                    <div style={{flexBasis: '50%'}}>
                         <Slider min={0} max={100} val={35} id='slider1' label='1-grams'/>
                         <Slider min={0} max={100} val={15} id='slider2' label='2-grams'/>
                         <Slider min={0} max={100} val={0} id='slider3' label='3-grams'/>
                         <Slider min={0} max={100} val={0} id='slider4' label='4-grams'/>
                     </div>
-                    <div>
+                    <div style={{flexBasis: '50%'}}>
                         <Slider min={1} max={50} val={4} id='sliderMin' label='Min. chars'/>
                         <Slider min={1} max={50} val={30} id='sliderMax' label='Max. chars'/>
                     </div>
@@ -138,7 +144,7 @@ function App() {
                           placeholder="Input text here"/>
 
                 <div style={{display: 'inline-block'}}>
-                        
+
                     <MainButton
                         startIcon={<PublishIcon />}
                         onClick={() => submit(setChipData, setStatusText)}
@@ -172,7 +178,7 @@ function App() {
                                              onChange={() => {}}
                                              placeholder="Results appear here" />
                     },
-                    { 
+                    {
                         label: 'CSV',
                         component: <textarea className="textarea"
                                              rows='10'
